@@ -1,0 +1,56 @@
+.chordselector {
+    width: calc(100%/7);
+}
+
+.timerselect {
+    width: calc(100%/2);
+}
+
+.chordsettings {
+    margin: 1em;
+}
+.timersettings, .settings {
+    display: flex;
+    justify-content: center;
+    margin: 1em;
+}
+
+p, h1 {
+    text-align: center;
+}
+h1 {
+    font-size: large;
+    font-weight: 700;
+}
+
+.timer {
+    border: 1px solid black;
+    padding: 0.15em;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    width: calc(100%/1.5);
+}
+
+.chorddisplay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 6em;
+    font-weight: bold;
+    margin: 0.1em;
+}
+
+// .chordtext {}
+
+.chordimage {
+    width: 96px;
+    height: 124px;
+}
+
+.foot {
+    margin-top: 2em;
+    text-align: center;
+}
