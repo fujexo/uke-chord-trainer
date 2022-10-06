@@ -1,20 +1,17 @@
-use std::time::Duration;
+use gloo_console::log;
+use gloo_timers::callback::Interval;
 use rand::seq::SliceRandom;
-use yew::services::ConsoleService;
-use yew::services::interval::{IntervalService, IntervalTask};
-use yew::{html, App, Component, ComponentLink, Html, ShouldRender};
+use yew::prelude::*;
 
 mod bindings;
 
 static CHORDS: [&str; 42] = [
-    "C",     "D",     "E",     "F",     "G",     "A",     "B",
-    "C7",    "D7",    "E7",    "F7",    "G7",    "A7",    "B7",
-    "Cm",    "Dm",    "Em",    "Fm",    "Gm",    "Am",    "Bm",
-    "Cm7",   "Dm7",   "Em7",   "Fm7",   "Gm7",   "Am7",   "Bm7",
+    "C", "D", "E", "F", "G", "A", "B", "C7", "D7", "E7", "F7", "G7", "A7", "B7", "Cm", "Dm", "Em",
+    "Fm", "Gm", "Am", "Bm", "Cm7", "Dm7", "Em7", "Fm7", "Gm7", "Am7", "Bm7",
     //"Cdim",  "Ddim",  "Edim",  "Fdim",  "Gdim",  "Admin", "Bdim",
     //"Caug",  "Daug",  "Eaug",  "Faug",  "Gaug",  "Aaug",  "Baug",
-    "C6",    "D6",    "E6",    "F6",    "G6",    "A6",    "B6",
-    "Cmaj7", "Dmaj7", "Emaj7", "Fmaj7", "Gmaj7", "Amaj7", "Bmaj7",
+    "C6", "D6", "E6", "F6", "G6", "A6", "B6", "Cmaj7", "Dmaj7", "Emaj7", "Fmaj7", "Gmaj7", "Amaj7",
+    "Bmaj7",
     // "C9",    "D9",    "E9",    "F9",    "G9",    "A9",    "B9",
 ];
 
@@ -34,54 +31,74 @@ pub enum Msg {
 }
 
 pub struct Model {
-    link: ComponentLink<Self>,
     timer: f64,
     current_chord: String,
     chords: Vec<String>,
     chordimage: bool,
     metronome: bool,
-    _clock: IntervalTask,
+    _clock: Option<Interval>,
+}
+
+impl Model {
+    fn cancel_timer(&mut self) {
+        self._clock = None;
+    }
 }
 
 impl Component for Model {
     type Message = Msg;
     type Properties = ();
 
-    fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let clock_handle =
-            IntervalService::spawn(Duration::from_secs(2), link.callback(|_| Msg::Tick));
+    //fn create(_ctx: &Context<Self>, _props: Self::Properties, link: ComponentLink<Self>) -> Self {
+    fn create(ctx: &Context<Self>) -> Self {
+        let link = ctx.link().clone();
+        let clock_handle = Interval::new(2_000, move || link.send_message(Msg::Tick));
 
         Self {
-            link,
             timer: 2.0,
-            chords: vec!["C".to_string(), "F".to_string(), "G7".to_string(), "Am".to_string(), "G".to_string(), "D".to_string(), "A".to_string(),],
+            chords: vec![
+                "C".to_string(),
+                "F".to_string(),
+                "G7".to_string(),
+                "Am".to_string(),
+                "G".to_string(),
+                "D".to_string(),
+                "A".to_string(),
+            ],
             current_chord: "C".to_string(),
             chordimage: false,
             metronome: false,
-            _clock: clock_handle,
+            _clock: Some(clock_handle),
         }
-
     }
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+        let link = ctx.link().clone();
         match msg {
             Msg::IncrementSeconds => {
                 self.timer += 0.25;
-                self._clock = IntervalService::spawn(Duration::from_millis((self.timer * 1000.0) as u64), self.link.callback(|_| Msg::Tick));
+                self.cancel_timer();
+                self._clock = Some(Interval::new((self.timer * 1000.0) as u32, move || {
+                    link.send_message(Msg::Tick);
+                }));
                 true
             }
             Msg::DecrementSeconds => {
                 self.timer -= 0.25;
-                self._clock = IntervalService::spawn(Duration::from_millis((self.timer * 1000.0) as u64), self.link.callback(|_| Msg::Tick));
+                self.cancel_timer();
+                self._clock = Some(Interval::new((self.timer * 1000.0) as u32, move || {
+                    link.send_message(Msg::Tick);
+                }));
                 true
             }
             Msg::ToggleChord(chord) => {
                 if self.chords.contains(&chord) {
-                    self.chords.remove(self.chords.iter().position(|x| *x == chord).unwrap());
+                    self.chords
+                        .remove(self.chords.iter().position(|x| *x == chord).unwrap());
                 } else {
                     self.chords.push(chord)
                 }
-                ConsoleService::log(&*format!("Activated Chords: {:?}", self.chords));
+                log!(format!("Activated Chords: {:?}", self.chords));
                 true
             }
             Msg::ToggleChordImage => {
@@ -94,7 +111,7 @@ impl Component for Model {
             }
             Msg::Tick => {
                 self.current_chord = self.chords.choose(&mut rand::thread_rng()).unwrap().clone();
-                ConsoleService::log(&*format!("New Chord: {:?}", self.current_chord));
+                log!(format!("New Chord: {:?}", self.current_chord));
 
                 if self.metronome == true {
                     bindings::play();
@@ -105,12 +122,7 @@ impl Component for Model {
         }
     }
 
-    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        false
-    }
-
-    fn view(&self) -> Html {
-
+    fn view(&self, ctx: &Context<Self>) -> Html {
         let chord_image_path = "assets/img/".to_string() + &self.current_chord + ".svg";
 
         html! {
@@ -122,20 +134,20 @@ impl Component for Model {
 
                     { if self.chordimage == true {
                         html!{
-                            <img class="chordimage" src=chord_image_path />
-                        } 
+                            <img class="chordimage" src={chord_image_path} />
+                        }
                       } else {
                           html!{}
                       }
                     }
-                    
+
                 </div>
                 <div class="chordsettings">
                     <nav class="menu">
                         { for CHORDS.map(|name| if self.chords.contains(&name.to_string()) {
-                            html!{ <button class="button chordselector is-active" onclick=self.link.callback(move |_| Msg::ToggleChord(name.to_string()))> { name } </button> }
+                            html!{ <button class="button chordselector is-active" onclick={ctx.link().callback(move |_| Msg::ToggleChord(name.to_string()))}> { name } </button> }
                         } else {
-                            html!{ <button class="button chordselector" onclick=self.link.callback(move |_| Msg::ToggleChord(name.to_string()))> { name } </button> }
+                            html!{ <button class="button chordselector" onclick={ctx.link().callback(move |_| Msg::ToggleChord(name.to_string()))}> { name } </button> }
                         }) }
                     </nav>
                 </div>
@@ -145,21 +157,21 @@ impl Component for Model {
                             <span class="timer">{ self.timer }</span>
                             { " Sec." }
                         </p>
-                        <button class="button timerselect" onclick=self.link.callback(|_| Msg::DecrementSeconds)> { "Decrease Time" }</button>
-                        <button class="button timerselect" onclick=self.link.callback(|_| Msg::IncrementSeconds)> { "Increase Time" } </button>
+                        <button class="button timerselect" onclick={ctx.link().callback(|_| Msg::DecrementSeconds)}> { "Decrease Time" }</button>
+                        <button class="button timerselect" onclick={ctx.link().callback(|_| Msg::IncrementSeconds)}> { "Increase Time" } </button>
                     </nav>
                 </div>
                 <div class="settings">
                 <nav class="menu">
                     { if self.chordimage == true {
-                        html!{ <button class="button is-active" onclick=self.link.callback(move |_| Msg::ToggleChordImage)> { "Toggle Chord Image" } </button> }
+                        html!{ <button class="button is-active" onclick={ctx.link().callback(move |_| Msg::ToggleChordImage)}> { "Toggle Chord Image" } </button> }
                     } else {
-                        html!{ <button class="button" onclick=self.link.callback(move |_| Msg::ToggleChordImage)> { "Toggle Chord Image" } </button> }
+                        html!{ <button class="button" onclick={ctx.link().callback(move |_| Msg::ToggleChordImage)}> { "Toggle Chord Image" } </button> }
                     }}
                     { if self.metronome == true {
-                        html!{ <button class="button is-active" onclick=self.link.callback(move |_| Msg::ToggleMetronome)> { "Toggle Metronome" } </button> }
+                        html!{ <button class="button is-active" onclick={ctx.link().callback(move |_| Msg::ToggleMetronome)}> { "Toggle Metronome" } </button> }
                     } else {
-                        html!{ <button class="button" onclick=self.link.callback(move |_| Msg::ToggleMetronome)> { "Toggle Metronome" } </button> }
+                        html!{ <button class="button" onclick={ctx.link().callback(move |_| Msg::ToggleMetronome)}> { "Toggle Metronome" } </button> }
                     }}
                 </nav>
             </div>
@@ -172,15 +184,12 @@ impl Component for Model {
     }
 }
 
-fn mount_app(selector: &'static str, app: App<Model>) -> ComponentLink<Model> {
-    let document = yew::utils::document();
-    let element = document.query_selector(selector).unwrap().unwrap();
-    app.mount(element)
-}
+//fn mount_app(selector: &'static str, app: App<Model>) -> ComponentLink<Model> {
+//    let document = yew::utils::document();
+//    let element = document.query_selector(selector).unwrap().unwrap();
+//    app.mount(element)
+//}
 
 fn main() {
-    yew::initialize();
-    let application = App::new();
-    mount_app(".main", application);
-    yew::run_loop();
+    yew::start_app::<Model>();
 }
