@@ -32,9 +32,7 @@ jobs:
         target: wasm32-unknown-unknown
 
     - name: Install cargo dependencies
-      uses: actions-rs/cargo@v1
-      with:
-        command: install trunk wasm-bindgen-cli
+      run: cargo install trunk wasm-bindgen-cli
 
     - name: Build
       run: trunk build
