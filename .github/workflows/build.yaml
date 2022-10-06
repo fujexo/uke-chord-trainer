@@ -15,11 +15,26 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: |
-        rustup toolchain install beta
-        rustup override set beta
-        rustup target add wasm32-unknown-unknown
-        cargo install trunk wasm-bindgen-cli
+
+    - uses: actions/cache@v3
+        with:
+          path: |
+            ./target
+            ~/.cargo
+          key: ${{ runner.os }}-${{ hashFiles('Cargo.toml') }}
+          
+    - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: default
+          toolchain: beta
+          override: true
+          target: wasm32-unknown-unknown
+
+    - name: Install cargo dependencies
+        uses: actions-rs/cargo@v1
+        with:
+          command: trunk wasm-bindgen-cli
+
     - name: Build
       run: trunk build
