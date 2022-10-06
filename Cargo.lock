@@ -518,6 +518,7 @@ dependencies = [
  "getrandom",
  "gloo-console",
  "gloo-timers",
+ "gloo-utils",
  "js-sys",
  "rand",
  "wasm-bindgen",
