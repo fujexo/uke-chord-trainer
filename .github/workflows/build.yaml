@@ -34,7 +34,7 @@ jobs:
     - name: Install cargo dependencies
       uses: actions-rs/cargo@v1
       with:
-        command: trunk wasm-bindgen-cli
+        command: install trunk wasm-bindgen-cli
 
     - name: Build
       run: trunk build
