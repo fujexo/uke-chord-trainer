@@ -113,7 +113,7 @@ impl Component for Model {
                 self.current_chord = self.chords.choose(&mut rand::thread_rng()).unwrap().clone();
                 log!(format!("New Chord: {:?}", self.current_chord));
 
-                if self.metronome == true {
+                if self.metronome {
                     bindings::play();
                 }
 
@@ -132,7 +132,7 @@ impl Component for Model {
                     <span class="chordtext"> { self.current_chord.clone() }</span>
                     // <span class="chordimage"> { "IMG" } </span>
 
-                    { if self.chordimage == true {
+                    { if self.chordimage {
                         html!{
                             <img class="chordimage" src={chord_image_path} />
                         }
@@ -163,12 +163,12 @@ impl Component for Model {
                 </div>
                 <div class="settings">
                 <nav class="menu">
-                    { if self.chordimage == true {
+                    { if self.chordimage {
                         html!{ <button class="button is-active" onclick={ctx.link().callback(move |_| Msg::ToggleChordImage)}> { "Toggle Chord Image" } </button> }
                     } else {
                         html!{ <button class="button" onclick={ctx.link().callback(move |_| Msg::ToggleChordImage)}> { "Toggle Chord Image" } </button> }
                     }}
-                    { if self.metronome == true {
+                    { if self.metronome {
                         html!{ <button class="button is-active" onclick={ctx.link().callback(move |_| Msg::ToggleMetronome)}> { "Toggle Metronome" } </button> }
                     } else {
                         html!{ <button class="button" onclick={ctx.link().callback(move |_| Msg::ToggleMetronome)}> { "Toggle Metronome" } </button> }
