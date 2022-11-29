@@ -188,5 +188,5 @@ fn main() {
     let document = gloo_utils::document();
     let element = document.query_selector(".main").unwrap().unwrap();
 
-    yew::start_app_in_element::<Model>(element);
+    yew::Renderer::<Model>::with_root(element).render();
 }
