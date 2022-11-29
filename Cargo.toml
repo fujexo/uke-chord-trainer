@@ -12,6 +12,6 @@ arraymap = "0.1"
 rand = "0.8"
 getrandom = { version = "0.2", features = ["js"] }
 wasm-bindgen = "0.2"
-gloo-timers = "0.2.4"
+gloo-timers = "0.2.5"
 gloo-console = "0.2.3"
 gloo-utils = "0.1.6"
