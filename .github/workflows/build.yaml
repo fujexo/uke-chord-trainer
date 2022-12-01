@@ -22,7 +22,7 @@ jobs:
           ./target
           ~/.cargo
         key: ${{ runner.os }}-${{ hashFiles('Cargo.toml') }}
-          
+
     - name: Install stable toolchain
       uses: actions-rs/toolchain@v1
       with:
@@ -41,3 +41,10 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         args: --all-features
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist
+        path: |
+          dist
