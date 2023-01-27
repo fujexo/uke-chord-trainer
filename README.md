@@ -13,11 +13,7 @@ I was previously using the Akkord Trainer from [ukuleleinsider.de](https://ukule
 * `trunk` 
 * `wasm-bindgen-cli`
 
-Currently, rustc 1.54.0 is shipped as stable (as of 2021-09-07). rustc 1.55 can be installed from the beta channel.
-
 ```bash
-rustup toolchain install beta
-rustup override set beta
 rustup target add wasm32-unknown-unknown
 cargo install trunk wasm-bindgen-cli
 ```
@@ -26,7 +22,7 @@ cargo install trunk wasm-bindgen-cli
 
 Simple! just execute `trunk serve` in the repository and the tool will start a webserver which also checks for file changes. How convenient.
 
-If you need a release build, execute `trunk build --release`.
+If you need a release build, execute `trunk build --release`. If you are deploying at a different path than /, add `--public-url /path/` to the build process.
 
 ## TODO
 
