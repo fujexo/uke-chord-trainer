@@ -35,7 +35,7 @@ jobs:
       run: cargo install trunk wasm-bindgen-cli
 
     - name: Build
-      run: trunk build
+      run: trunk build --release --public-url /uke-chord-trainer
 
     - uses: actions-rs/clippy-check@v1
       with:
