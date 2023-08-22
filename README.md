@@ -2,7 +2,7 @@
 
 This project was written in Rust for Webassembly, just because I was curious!
 
-I was previously using the Akkord Trainer from [ukuleleinsider.de](https://ukuleleinsider.de/akkord-trainer/). I felt to write something very similar but with added features like an image of the current chord displayed.
+I was previously using the Akkord Trainer from ukuleleinsider.de (is offline since). I felt to write something very similar but with added features like an image of the current chord displayed.
 
 ## Development
 
@@ -36,4 +36,4 @@ If you need a release build, execute `trunk build --release`. If you are deployi
 ## Sources
 
 * Metronome Sound: https://bigsoundbank.com/detail-0468-metronome-a-120bpm.html
-* Idea: https://ukuleleinsider.de/akkord-trainer
+* Idea: ukuleleinsider.de/akkord-trainer
