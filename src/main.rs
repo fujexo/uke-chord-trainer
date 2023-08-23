@@ -114,8 +114,10 @@ impl Component for Model {
                 true
             }
             Msg::Tick => {
-                self.current_chord = self.chords.choose(&mut rand::thread_rng()).unwrap().clone();
-                log!(format!("New Chord: {:?}", self.current_chord));
+                self.current_chord = match self.chords.choose(&mut rand::thread_rng()) {
+                    Some(chord) => chord.clone(),
+                    None => self.current_chord.clone()
+                };
 
                 if self.metronome {
                     bindings::play();
