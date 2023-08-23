@@ -4,6 +4,8 @@ This project was written in Rust for Webassembly, just because I was curious!
 
 I was previously using the Akkord Trainer from ukuleleinsider.de (is offline since). I felt to write something very similar but with added features like an image of the current chord displayed.
 
+The current version is deployed on Github Pages at https://fujexo.github.io/uke-chord-trainer/
+
 ## Development
 
 ### Requirements
@@ -24,14 +26,6 @@ Simple! just execute `trunk serve` in the repository and the tool will start a w
 
 If you need a release build, execute `trunk build --release`. If you are deploying at a different path than /, add `--public-url /path/` to the build process.
 
-## TODO
-
-* Make UI more user friendly
-    * Contrast!
-    * Maybe replace the CSS framework, this one is just from testing
-    * Add a button to "Zoom in" the Chords and Chord image after selecting the chords?
-* Create svg for all missing chords (based on img/template.svg)
-* Check if I really really can't send the play trigger from rust and have to use the js binding
 
 ## Sources
 
