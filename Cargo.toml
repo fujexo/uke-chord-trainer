@@ -16,3 +16,5 @@ wasm-bindgen = "0.2"
 gloo-timers = "0.3.0"
 gloo-console = "0.3.0"
 gloo-utils = "0.2.0"
+ukebox = {version = "0.9.1"}
+tera = {version = "1"}

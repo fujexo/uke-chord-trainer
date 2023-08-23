@@ -1,7 +1,11 @@
 use gloo_console::log;
 use gloo_timers::callback::Interval;
 use rand::seq::SliceRandom;
+use std::str::FromStr;
+use tera::{Context as TeraContext, Tera};
+use ukebox::{Chord, Tuning, VoicingConfig};
 use yew::prelude::*;
+// use base64::encode;
 
 mod bindings;
 
@@ -123,23 +127,24 @@ impl Component for Model {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let chord_image_path = "assets/img/".to_string() + &self.current_chord + ".svg";
-
         html! {
             <div>
 
-                <div class="chorddisplay">
-                    <span class="chordtext"> { self.current_chord.clone() }</span>
-                    // <span class="chordimage"> { "IMG" } </span>
+            <div class="chorddisplay">
+            <span class="chordtext"> { self.current_chord.clone() }</span>
 
-                    { if self.chordimage {
-                        html!{
-                            <img class="chordimage" src={chord_image_path} />
-                        }
-                      } else {
-                          html!{}
-                      }
+            {
+                if self.chordimage {
+                    let chord_image = chord_image(&self.current_chord).to_string();
+                    let img = Html::from_html_unchecked(AttrValue::from(chord_image));
+
+                    html!{
+                        {img}
                     }
+                } else {
+                    html!{}
+                }
+            }
 
                 </div>
                 <div class="chordsettings">
@@ -189,4 +194,56 @@ fn main() {
     let element = document.query_selector(".main").unwrap().unwrap();
 
     yew::Renderer::<Model>::with_root(element).render();
+}
+
+fn svg_draw(finger: &str, string: i32, fret: i32, string_space: &i32) -> String {
+    if fret <= 0 {
+        return String::new();
+    }
+
+    let x = 50 + (string as i32 * string_space);
+    let y = 50 + (fret as i32 * string_space);
+    let radius = 13;
+
+    let finger = format!(
+        "<text x=\"{}\" y=\"{}\" class=\"text\" dominant-baseline=\"middle\" text-anchor=\"middle\" font-size=\"16\" fill=\"white\" font-weight=\"400\">{}</text>",
+        x, y + 2, finger
+    );
+
+    let fret = format!("<circle cx=\"{}\" cy=\"{}\" r=\"{}\" />", x, y, radius);
+
+    fret + &finger
+}
+
+fn chord_image(chord: &str) -> String {
+    const STRING_SPACE: i32 = 40;
+
+    let chord = Chord::from_str(chord).unwrap();
+
+    let tuning = Tuning::C;
+
+    let config = VoicingConfig {
+        tuning,
+        ..Default::default()
+    };
+    let voicing = chord.voicings(config).next().unwrap();
+    let fingers = voicing.fingers_on_strings();
+
+    let mut svg_add = String::new();
+
+    for (i, fret) in voicing.frets().enumerate() {
+        let ret = svg_draw(
+            &fingers[i].to_string(),
+            i as i32,
+            fret as i32,
+            &STRING_SPACE,
+        );
+        svg_add += &ret;
+    }
+
+    let mut context = TeraContext::new();
+    context.insert("fingers", &svg_add);
+
+    let image = Tera::one_off(include_str!("../templates/chord.svg"), &context, false).unwrap();
+    image
 }
