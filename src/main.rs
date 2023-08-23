@@ -116,7 +116,7 @@ impl Component for Model {
             Msg::Tick => {
                 self.current_chord = match self.chords.choose(&mut rand::thread_rng()) {
                     Some(chord) => chord.clone(),
-                    None => self.current_chord.clone()
+                    None => self.current_chord.clone(),
                 };
 
                 if self.metronome {
@@ -203,8 +203,8 @@ fn svg_draw(finger: &str, string: i32, fret: i32, string_space: &i32) -> String 
         return String::new();
     }
 
-    let x = 50 + (string as i32 * string_space);
-    let y = 50 + (fret as i32 * string_space);
+    let x = 50 + (string * string_space);
+    let y = 50 + (fret * string_space);
     let radius = 13;
 
     let finger = format!(
@@ -246,6 +246,5 @@ fn chord_image(chord: &str) -> String {
     let mut context = TeraContext::new();
     context.insert("fingers", &svg_add);
 
-    let image = Tera::one_off(include_str!("../templates/chord.svg"), &context, false).unwrap();
-    image
+    Tera::one_off(include_str!("../templates/chord.svg"), &context, false).unwrap()
 }
