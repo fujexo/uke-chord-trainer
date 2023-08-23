@@ -88,7 +88,9 @@ impl Component for Model {
                 true
             }
             Msg::DecrementSeconds => {
-                self.timer -= 0.25;
+                if self.timer >= 0.5 {
+                    self.timer -= 0.25;
+                }
                 self.cancel_timer();
                 self._clock = Some(Interval::new((self.timer * 1000.0) as u32, move || {
                     link.send_message(Msg::Tick);
