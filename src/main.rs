@@ -1,6 +1,6 @@
 use gloo_console::log;
 use gloo_timers::callback::Interval;
-use rand::seq::SliceRandom;
+use rand::prelude::*;
 use std::str::FromStr;
 use tera::{Context as TeraContext, Tera};
 use ukebox::{Chord, Tuning, VoicingConfig};
@@ -116,7 +116,7 @@ impl Component for Model {
                 true
             }
             Msg::Tick => {
-                self.current_chord = match self.chords.choose(&mut rand::thread_rng()) {
+                self.current_chord = match self.chords.choose(&mut rand::rng()) {
                     Some(chord) => chord.clone(),
                     None => self.current_chord.clone(),
                 };
