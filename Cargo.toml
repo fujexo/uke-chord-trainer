@@ -7,7 +7,7 @@ edition = "2021"
 yew = { version = "0.21", features = ["csr"] }
 js-sys = "0.3"
 arraymap = "0.1"
-rand = "0.8"
+rand = "0.10"
 getrandom = { version = "0.2", features = ["js"] }
 wasm-bindgen = "0.2"
 gloo-timers = "0.3.0"
